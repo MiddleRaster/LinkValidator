@@ -2,9 +2,14 @@
 {
     public class LinkValidator
     {
-        public static void Main(string[] args)
+        public static int Main(string[] args)
         {
-            Console.WriteLine("Hello, World!");
+            if (args.Length == 0) {
+                Console.WriteLine("Please provide a URL to validate.\nUsage:  LinkValidator.exe URL-to-validate");
+                return -1;
+            }
+
+            return 0;
         }
     }
 }
