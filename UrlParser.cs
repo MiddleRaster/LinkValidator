@@ -47,14 +47,33 @@ namespace LinkValidator
             return prefix + link;
         }
 
-
         public static string GetDirectory(string url)
         {
-            int lastSlash = url.LastIndexOf('/');
-            if (lastSlash < 8)  // https://blah.com without a trailing slash needs to work, too
-                return url + "/";
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                return url;
 
-            return url.Substring(0, lastSlash + 1);
+            // If the URL ends with a slash, it's already a directory
+            if (uri.AbsolutePath.EndsWith("/"))
+                return uri.GetLeftPart(UriPartial.Path);
+
+            // If the path has no dot, treat it as a folder missing a slash
+            var lastSegment = uri.Segments[^1];
+            if (!lastSegment.Contains('.'))
+                return uri.GetLeftPart(UriPartial.Path) + "/";
+
+            // Otherwise it's a file; strip the file name
+            var directory = uri.AbsoluteUri.Substring(0,
+                uri.AbsoluteUri.Length - lastSegment.Length);
+
+            return directory;
+        }
+
+        public static string GetDomain(string url)
+        {
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                return url;
+
+            return $"{uri.Scheme}://{uri.Host}";
         }
     }
 }

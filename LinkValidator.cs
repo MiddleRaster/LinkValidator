@@ -16,8 +16,9 @@ namespace LinkValidator
             var pending = new Queue<string>();
             var visited = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            string baseURL = args[0];
+            string domain = UrlParser.GetDomain(args[0]);
 
+            string baseURL = args[0]; // not necessarily the root
             pending.Enqueue(baseURL);
             visited.Add    (baseURL);
 
@@ -38,7 +39,7 @@ namespace LinkValidator
                     List<string> links = HrefExtractor.ExtractAllHrefs(html); // now extract all the URLs from the html string
                     foreach (string link in links)
                     {
-                        string normalized = UrlParser.Normalize(link, cwd, baseURL);
+                        string normalized = UrlParser.Normalize(link, cwd, domain);
 
                         if (!visited.Contains(normalized))
                         {
