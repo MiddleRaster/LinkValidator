@@ -1,6 +1,6 @@
 ﻿namespace LinkValidator
 {
-    public static class UrlExtractor
+    public static class HrefExtractor
     {
         public static List<string> ExtractAllHrefs(string html)
         {

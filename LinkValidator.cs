@@ -35,7 +35,7 @@ namespace LinkValidator
                     if (!url.StartsWith(baseURL))
                         continue;
 
-                    List<string> links = UrlExtractor.ExtractAllHrefs(html); // now extract all the URLs from the html string
+                    List<string> links = HrefExtractor.ExtractAllHrefs(html); // now extract all the URLs from the html string
                     foreach (string link in links)
                     {
                         string normalized = Normalize(link, cwd, baseURL);
