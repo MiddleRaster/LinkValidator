@@ -26,6 +26,8 @@ namespace LinkValidator
                 string url = pending.Dequeue();
                 Console.WriteLine($"dequeueing {url}");
 
+                string cwd = GetDirectory(url);
+
                 string? html = await HtmlFetcher.FetchHtmlAsync(url);
                 if (html != null)
                 {
@@ -36,7 +38,7 @@ namespace LinkValidator
                     List<string> links = UrlExtractor.ExtractAllHrefs(html); // now extract all the URLs from the html string
                     foreach (string link in links)
                     {
-                        string normalized = Normalize(link, baseURL);
+                        string normalized = Normalize(link, cwd, baseURL);
 
                         if (!visited.Contains(normalized))
                         {
@@ -56,7 +58,7 @@ namespace LinkValidator
             return ret;
         }
 
-        private static string Normalize(string link, string baseURL)
+        private static string Normalize(string link, string cwd, string siteRoot)
         {
             if (string.IsNullOrWhiteSpace(link))
                 return "";
@@ -84,18 +86,27 @@ namespace LinkValidator
             // Root-relative: "/about"
             if (link.StartsWith("/"))
             {
-                // Ensure baseURL has no trailing slash
-                if (baseURL.EndsWith("/"))
-                    return baseURL.TrimEnd('/') + link;
-                else
-                    return baseURL + link;
+                string root = siteRoot.EndsWith("/")
+                    ? siteRoot.TrimEnd('/')
+                    : siteRoot;
+
+                return root + link;
             }
 
             // Relative path: "page.html", "foo/bar", "../stuff"
-            // Ensure baseURL ends with a slash
-            string prefix = baseURL.EndsWith("/") ? baseURL : baseURL + "/";
+            string prefix = cwd.EndsWith("/") ? cwd : cwd + "/";
 
             return prefix + link;
+        }
+
+
+        private static string GetDirectory(string url)
+        {
+            int lastSlash = url.LastIndexOf('/');
+            if (lastSlash < 8)  // https://blah.com without a trailing slash needs to work, too
+                return url + "/";
+
+            return url.Substring(0, lastSlash + 1);
         }
     }
 }
