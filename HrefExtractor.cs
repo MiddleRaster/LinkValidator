@@ -4,15 +4,55 @@
     {
         public static List<string> ExtractAllHrefs(string html)
         {
+            html = System.Net.WebUtility.HtmlDecode(html);
+
             var results = new List<string>();
             int pos = 0;
 
             while (true)
             {
-                // Find next "<a"
-                int aPos = html.IndexOf("<a", pos, StringComparison.OrdinalIgnoreCase);
-                if (aPos < 0)
+                // Find the next <a>, <script>, and <style> after 'pos'
+                int nextA = html.IndexOf("<a", pos, StringComparison.OrdinalIgnoreCase);
+                int nextScript = html.IndexOf("<script", pos, StringComparison.OrdinalIgnoreCase);
+                int nextStyle = html.IndexOf("<style", pos, StringComparison.OrdinalIgnoreCase);
+
+                // If there's no more <a>, we're done
+                if (nextA < 0)
                     break;
+
+                // Determine the nearest tag of interest
+                int  nextTag  = nextA;
+                bool isScript = false;
+                bool isStyle  = false;
+
+                if (nextScript >= 0 && nextScript < nextTag)
+                    (nextTag, isScript, isStyle) = (nextScript, true, false);
+
+                if (nextStyle >= 0 && nextStyle < nextTag)
+                    (nextTag, isScript, isStyle) = (nextStyle, false, true);
+
+                // If the nearest thing is a <script>, skip its block and continue
+                if (isScript)
+                {
+                    int scriptEnd = html.IndexOf("</script>", nextScript, StringComparison.OrdinalIgnoreCase);
+                    if (scriptEnd < 0)
+                        break; // malformed HTML, bail
+                    pos = scriptEnd + "</script>".Length;
+                    continue;
+                }
+
+                // If the nearest thing is a <style>, skip its block and continue
+                if (isStyle)
+                {
+                    int styleEnd = html.IndexOf("</style>", nextStyle, StringComparison.OrdinalIgnoreCase);
+                    if (styleEnd < 0)
+                        break;
+                    pos = styleEnd + "</style>".Length;
+                    continue;
+                }
+
+                // If we get here, the nearest tag is a real <a>
+                int aPos = nextA;
 
                 // Find "href" after that
                 int hrefPos = html.IndexOf("href", aPos, StringComparison.OrdinalIgnoreCase);
