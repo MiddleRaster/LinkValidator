@@ -34,7 +34,7 @@
                     List<string> links = HrefExtractor.ExtractAllHrefs(html); // now extract all the URLs from the html string
                     foreach (string link in links)
                     {
-                        string normalized = UrlParser.Normalize(link, cwd, domain);
+                        string normalized = UrlParser.NormalizeQueryParameters(UrlParser.Normalize(link, cwd, domain));
 
                         if (!visited.Contains(normalized))
                         {

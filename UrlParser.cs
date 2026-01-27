@@ -1,4 +1,6 @@
-﻿namespace LinkValidator
+﻿using System.Web;
+
+namespace LinkValidator
 {
     public static class UrlParser
     {
@@ -70,6 +72,35 @@
                 return url;
 
             return $"{uri.Scheme}://{uri.Host}";
+        }
+
+        public static string NormalizeQueryParameters(string url)
+        {
+            if (string.IsNullOrWhiteSpace(url))
+                return url;
+
+            url = System.Net.WebUtility.HtmlDecode(url); // Decode HTML entities like &amp; into &
+
+            var uri = new Uri(url, UriKind.Absolute);
+
+            if (string.IsNullOrEmpty(uri.Query) || uri.Query == "?")
+                return uri.ToString();  // Short-circuit: no query parameters
+
+            var parsed = HttpUtility.ParseQueryString(uri.Query);
+            var dict   = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var key in parsed.AllKeys.Where(k => k != null))
+            {
+                var values = parsed.GetValues(key);
+                dict[key!] = values?.LastOrDefault() ?? string.Empty; // last value wins
+            }
+            var normalizedQuery = string.Join("&", dict.OrderBy(kvp => kvp.Key, StringComparer.OrdinalIgnoreCase).Select(kvp => $"{kvp.Key}={kvp.Value}"));
+            var builder = new UriBuilder(uri)
+            {
+                Query = normalizedQuery
+            };
+
+            return builder.Uri.ToString().Replace("\"", "%22"); // that last bit is to escale https://www.reddit.com/r/kanban/?f=flair_name:"Discussion"
         }
     }
 }
