@@ -1,4 +1,7 @@
-﻿public static class HtmlFetcher
+﻿using System.Net;
+using Microsoft.Playwright;
+
+public static class HtmlFetcher
 {
     private static readonly HttpClient client = new HttpClient();
 
@@ -25,18 +28,68 @@
         try
         {
             using var response = await client.GetAsync(url);
-            if (!response.IsSuccessStatusCode)
+
+            if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"Failed to fetch {url}: {response.StatusCode}");
+                return await response.Content.ReadAsStringAsync();
+            }
+
+            if (response.StatusCode == HttpStatusCode.Forbidden       ||
+                response.StatusCode == HttpStatusCode.TooManyRequests ||
+                response.StatusCode == HttpStatusCode.Unauthorized    ){
+                return await FetchWithPlaywrightAsync(url); // If the server is blocking bots, escalate to Playwright
+            }
+
+            Console.WriteLine($"Failed to fetch {url}: {response.StatusCode}");
+            return null;
+        }
+        catch (Exception /*ex*/)
+        {
+            return await FetchWithPlaywrightAsync(url);
+        }
+    }
+
+    private static async Task<string?> FetchWithPlaywrightAsync(string url)
+    {
+        try
+        {
+            using var playwright = await Playwright.CreateAsync();
+
+            await using var browser = await playwright.Chromium.LaunchAsync(
+                new BrowserTypeLaunchOptions
+                {
+                    Headless = true,
+                    Args = new[] { "--no-sandbox", "--disable-dev-shm-usage" }
+                });
+
+            var context = await browser.NewContextAsync(new BrowserNewContextOptions
+            {
+                UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+                            "AppleWebKit/537.36 (KHTML, like Gecko) " +
+                            "Chrome/120.0.0.0 Safari/537.36",
+                Locale = "en-US"
+            });
+
+            var page = await context.NewPageAsync();
+            page.SetDefaultNavigationTimeout(30000);
+
+            var response = await page.GotoAsync(url, new PageGotoOptions
+            {
+                WaitUntil = WaitUntilState.NetworkIdle,
+                Timeout = 30000
+            });
+
+            if (response != null && response.Status >= 400)
+            {
+                Console.WriteLine($"Playwright navigation returned {(int)response.Status} for {url}");
                 return null;
             }
 
-            string html = await response.Content.ReadAsStringAsync();
-            return html;
+            return await page.ContentAsync();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching {url}: {ex.Message}");
+            Console.WriteLine($"Playwright fetch failed for {url}: {ex.Message}");
             return null;
         }
     }

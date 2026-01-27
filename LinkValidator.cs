@@ -42,7 +42,7 @@ namespace LinkValidator
 
                         if (!visited.Contains(normalized))
                         {
-                            Console.WriteLine($"queueing {normalized}");
+                            Console.WriteLine($"  queueing {normalized}");
 
                             pending.Enqueue(normalized);
                             visited.Add    (normalized);
