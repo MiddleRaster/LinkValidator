@@ -1,7 +1,4 @@
-﻿
-using System;
-
-namespace LinkValidator
+﻿namespace LinkValidator
 {
     public class LinkValidator
     {
@@ -31,8 +28,7 @@ namespace LinkValidator
                 string? html = await HtmlFetcher.FetchHtmlAsync(url);
                 if (html != null)
                 {
-                    // only recurse if in our domain
-                    if (!url.StartsWith(baseURL, StringComparison.OrdinalIgnoreCase))
+                    if (!url.StartsWith(baseURL, StringComparison.OrdinalIgnoreCase))   // only recurse if in our domain
                         continue;
 
                     List<string> links = HrefExtractor.ExtractAllHrefs(html); // now extract all the URLs from the html string

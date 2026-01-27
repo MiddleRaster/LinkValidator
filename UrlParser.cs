@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace LinkValidator
+﻿namespace LinkValidator
 {
     public static class UrlParser
     {
@@ -20,12 +16,12 @@ namespace LinkValidator
 
             // Ignore javascript:, mailto:, tel:, etc.
             if (link.StartsWith("javascript:", StringComparison.OrdinalIgnoreCase) ||
-                link.StartsWith("mailto:", StringComparison.OrdinalIgnoreCase) ||
-                link.StartsWith("tel:", StringComparison.OrdinalIgnoreCase))
+                link.StartsWith("mailto:",     StringComparison.OrdinalIgnoreCase) ||
+                link.StartsWith("tel:",        StringComparison.OrdinalIgnoreCase))
                 return "";
 
             // Absolute URL?
-            if (link.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            if (link.StartsWith("http://",  StringComparison.OrdinalIgnoreCase) ||
                 link.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
                 return link;

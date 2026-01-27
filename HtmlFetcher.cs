@@ -40,7 +40,7 @@ public static class HtmlFetcher
                 return await FetchWithPlaywrightAsync(url); // If the server is blocking bots, escalate to Playwright
             }
 
-            Console.WriteLine($"Failed to fetch {url}: {response.StatusCode}");
+            Console.WriteLine($"\nFailed to fetch {url}: {response.StatusCode}\n");
             return null;
         }
         catch (Exception /*ex*/)
@@ -81,7 +81,7 @@ public static class HtmlFetcher
 
             if (response != null && response.Status >= 400)
             {
-                Console.WriteLine($"Playwright navigation returned {(int)response.Status} for {url}");
+                Console.WriteLine($"\nPlaywright Failed to fetch {url}: navigation returned {(int)response.Status}\n");
                 return null;
             }
 
@@ -89,7 +89,7 @@ public static class HtmlFetcher
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Playwright fetch failed for {url}: {ex.Message}");
+            Console.WriteLine($"\nPlaywright Failed to fetch {url}: {ex.Message}\n");
             return null;
         }
     }
