@@ -29,6 +29,13 @@ namespace LinkValidator
                 return link;
             }
 
+            // Protocol-relative: "//example.com/page"
+            if (link.StartsWith("//"))
+            {   // Infer protocol from siteRoot
+                string protocol = siteRoot.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ? "https:" : "http:";
+                return protocol + link;
+            }
+
             // Root-relative: "/about"
             if (link.StartsWith("/"))
             {
