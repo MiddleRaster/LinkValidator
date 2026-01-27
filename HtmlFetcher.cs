@@ -19,12 +19,6 @@ public static class HtmlFetcher
 
     public static async Task<string?> FetchHtmlAsync(string url)
     {
-        if (!Uri.IsWellFormedUriString(url, UriKind.Absolute)) // TODO: this isn't right, because I will have incremental URLs, too.
-        {
-            Console.WriteLine($"Invalid URL: {url}");
-            return null;
-        }
-
         try
         {
             using var response = await client.GetAsync(url);
