@@ -88,7 +88,8 @@ namespace LinkValidator
 
             url = System.Net.WebUtility.HtmlDecode(url); // Decode HTML entities like &amp; into &
 
-            var uri = new Uri(url, UriKind.Absolute);
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                return url;
 
             if (string.IsNullOrEmpty(uri.Query) || uri.Query == "?")
                 return uri.ToString();  // Short-circuit: no query parameters
