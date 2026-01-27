@@ -51,6 +51,19 @@
                     continue;
                 }
 
+                // Ensure we don't match <abbr>, <aside>, <article>, etc.
+                if (nextA + 2 >= html.Length)
+                {
+                    pos = nextA + 2;
+                    continue;
+                }
+                char nextChar = html[nextA + 2];
+                if (!char.IsWhiteSpace(nextChar) && nextChar != '>' && nextChar != '/')
+                {   // Not a real <a> tag — skip it
+                    pos = nextA + 2;
+                    continue;
+                }
+
                 // If we get here, the nearest tag is a real <a>
                 int aPos = nextA;
 
