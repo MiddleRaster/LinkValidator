@@ -12,9 +12,9 @@
             while (true)
             {
                 // Find the next <a>, <script>, and <style> after 'pos'
-                int nextA = html.IndexOf("<a", pos, StringComparison.OrdinalIgnoreCase);
+                int nextA      = html.IndexOf("<a",      pos, StringComparison.OrdinalIgnoreCase);
                 int nextScript = html.IndexOf("<script", pos, StringComparison.OrdinalIgnoreCase);
-                int nextStyle = html.IndexOf("<style", pos, StringComparison.OrdinalIgnoreCase);
+                int nextStyle  = html.IndexOf("<style",  pos, StringComparison.OrdinalIgnoreCase);
 
                 // If there's no more <a>, we're done
                 if (nextA < 0)
