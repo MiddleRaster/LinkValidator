@@ -35,6 +35,8 @@
                     foreach (string link in links)
                     {
                         string normalized = UrlParser.NormalizeQueryParameters(UrlParser.Normalize(link, cwd, domain));
+                        if (String.IsNullOrEmpty(normalized))
+                            continue;
 
                         if (!visited.Contains(normalized))
                         {
